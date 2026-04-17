@@ -27,9 +27,18 @@ app.add_middleware(
 )
 
 # Initialize OpenAI clients with error handling
+openai_api_key = os.getenv("OPENAI_API_KEY")
+print(f"OpenAI API Key configured: {bool(openai_api_key)}")
+
 try:
-    openai_client = OpenAI()
-    OPENAI_AVAILABLE = True
+    if openai_api_key:
+        openai_client = OpenAI(api_key=openai_api_key)
+        OPENAI_AVAILABLE = True
+        print("OpenAI client initialized successfully")
+    else:
+        print("Warning: OPENAI_API_KEY not found in environment variables")
+        openai_client = None
+        OPENAI_AVAILABLE = False
 except Exception as e:
     print(f"Warning: OpenAI client initialization failed: {e}")
     openai_client = None
