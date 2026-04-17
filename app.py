@@ -261,6 +261,42 @@ async def debug_info():
         }
     }
 
+@app.get("/test-openai")
+async def test_openai():
+    """Test OpenAI connection directly"""
+    try:
+        import requests
+        api_key = os.getenv("OPENAI_API_KEY")
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "model": "gpt-4o-mini",
+            "messages": [{"role": "user", "content": "Hello, test message"}],
+            "max_tokens": 10
+        }
+        
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers=headers,
+            json=data,
+            timeout=10
+        )
+        
+        return {
+            "status_code": response.status_code,
+            "response": response.text[:200] if response.text else "No response",
+            "api_key_length": len(api_key) if api_key else 0,
+            "api_key_starts_with_sk": api_key.startswith("sk-") if api_key else False
+        }
+    except Exception as e:
+        return {
+            "error": str(e),
+            "api_key_length": len(api_key) if api_key else 0,
+            "api_key_starts_with_sk": api_key.startswith("sk-") if api_key else False
+        }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
