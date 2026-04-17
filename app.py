@@ -207,21 +207,6 @@ def rerun_reply(reply: str, message: str, history: List[ChatMessage], feedback: 
 async def chat(request: ChatRequest):
     """Chat endpoint with evaluation system"""
     try:
-        # Check if OpenAI is available
-        if not OPENAI_AVAILABLE:
-            # Fallback response when OpenAI is not available
-            fallback_response = f"""Hello! I'm Antonio Silván's AI assistant. I can answer questions about my background, skills, and experience based on the following information:
-
-{summary_data[:500]}...
-
-To get full AI-powered responses, please configure the OpenAI API key in the backend. For now, I can provide basic information about my profile.
-
-What would you like to know about my experience or skills?"""
-            return ChatResponse(
-                reply=fallback_response,
-                evaluation_passed=True,
-                feedback=None
-            )
         
         # Check for special conditions (like the patent example in the notebook)
         system = system_prompt
