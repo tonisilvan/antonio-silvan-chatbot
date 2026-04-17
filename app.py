@@ -246,6 +246,21 @@ async def health_check():
         "name": name
     }
 
+@app.get("/debug")
+async def debug_info():
+    """Debug endpoint to check configuration"""
+    return {
+        "openai_available": OPENAI_AVAILABLE,
+        "gemini_available": GEMINI_AVAILABLE,
+        "openai_api_key_set": bool(os.getenv("OPENAI_API_KEY")),
+        "google_api_key_set": bool(os.getenv("GOOGLE_API_KEY")),
+        "allowed_origins": allowed_origins,
+        "data_loaded": {
+            "summary": bool(summary_data),
+            "linkedin": bool(linkedin_data)
+        }
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
