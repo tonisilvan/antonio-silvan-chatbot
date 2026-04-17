@@ -167,13 +167,41 @@ def evaluate_reply(reply: str, message: str, history: List[ChatMessage]) -> Eval
 
 def rerun_reply(reply: str, message: str, history: List[ChatMessage], feedback: str) -> str:
     """Rerun the chat with feedback"""
-    updated_system_prompt = system_prompt + "\n\n## Previous answer rejected\nYou just tried to reply, but the quality control rejected your reply\n"
-    updated_system_prompt += f"## Your attempted answer:\n{reply}\n\n"
-    updated_system_prompt += f"## Reason for rejection:\n{feedback}\n\n"
-    
-    messages = [{"role": "system", "content": updated_system_prompt}] + [{"role": h.role, "content": h.content} for h in history] + [{"role": "user", "content": message}]
-    response = openai_client.chat.completions.create(model="gpt-4o-mini", messages=messages)
-    return response.choices[0].message.content
+    try:
+        import requests
+        updated_system_prompt = system_prompt + "\n\n## Previous answer rejected\nYou just tried to reply, but the quality control rejected your reply\n"
+        updated_system_prompt += f"## Your attempted answer:\n{reply}\n\n"
+        updated_system_prompt += f"## Reason for rejection:\n{feedback}\n\n"
+        
+        messages = [{"role": "system", "content": updated_system_prompt}] + [{"role": h.role, "content": h.content} for h in history] + [{"role": "user", "content": message}]
+        
+        headers = {
+            "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "model": "gpt-4o-mini",
+            "messages": messages,
+            "max_tokens": 1000
+        }
+        
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers=headers,
+            json=data,
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            return result["choices"][0]["message"]["content"]
+        else:
+            print(f"OpenAI API error: {response.status_code} - {response.text}")
+            return "I apologize, but I encountered an error while processing your request. Please try again."
+            
+    except Exception as e:
+        print(f"Rerun error: {e}")
+        return "I apologize, but I encountered an error while processing your request. Please try again."
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
@@ -205,9 +233,52 @@ What would you like to know about my experience or skills?"""
         
         messages = [{"role": "system", "content": system}] + history_dict + [{"role": "user", "content": request.message}]
         
-        # Get initial response
-        response = openai_client.chat.completions.create(model="gpt-4o-mini", messages=messages)
-        reply = response.choices[0].message.content
+        # Get initial response using direct API call
+        try:
+            import requests
+            headers = {
+                "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+                "Content-Type": "application/json"
+            }
+            data = {
+                "model": "gpt-4o-mini",
+                "messages": messages,
+                "max_tokens": 1000
+            }
+            
+            response = requests.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                reply = result["choices"][0]["message"]["content"]
+            else:
+                print(f"OpenAI API error: {response.status_code} - {response.text}")
+                # Fallback response
+                fallback_response = f"""Hello! I'm Antonio Silván's AI assistant. I can answer questions about my background, skills, and experience based on the following information:
+
+{summary_data[:500]}...
+
+To get full AI-powered responses, please configure the OpenAI API key in the backend. For now, I can provide basic information about my profile.
+
+What would you like to know about my experience or skills?"""
+                reply = fallback_response
+                
+        except Exception as e:
+            print(f"Chat API error: {e}")
+            # Fallback response
+            fallback_response = f"""Hello! I'm Antonio Silván's AI assistant. I can answer questions about my background, skills, and experience based on the following information:
+
+{summary_data[:500]}...
+
+To get full AI-powered responses, please configure the OpenAI API key in the backend. For now, I can provide basic information about my profile.
+
+What would you like to know about my experience or skills?"""
+            reply = fallback_response
         
         # Evaluate the response
         evaluation = evaluate_reply(reply, request.message, request.history)
