@@ -1,0 +1,15 @@
+Antonio Silván is a Full-Stack Engineer & Technical Lead with extensive experience building backend systems, APIs, and modern web applications. He specializes in React, TypeScript, Java, Spring, and Kubernetes. He has worked on various projects including GraphQL services, Spring Boot APIs, API gateways, and full-stack applications deployed on Kubernetes. He is interested in scalable architectures, distributed systems, and modern web technologies.
+
+Key skills include:
+- Backend Development: Java, Spring Boot, Node.js, Python
+- Frontend Development: React, TypeScript, HTML/CSS, JavaScript
+- API Design: REST, GraphQL, API Gateway patterns
+- Cloud & DevOps: Docker, Kubernetes, CI/CD, Cloud platforms
+- Database: PostgreSQL, MongoDB, SQL, NoSQL
+- Architecture: Microservices, Distributed Systems, Scalable Design
+
+Professional experience includes working on enterprise-level applications, designing and implementing scalable server-side solutions, creating efficient and secure APIs, and leading technical teams. He has a strong background in both backend and frontend development, with particular expertise in building robust, scalable systems.
+
+His projects demonstrate proficiency in modern web technologies, including GraphQL services with Next.js, Spring Boot REST APIs, API gateways with OAuth2, and full-stack applications containerized and deployed on Kubernetes.
+
+Antonio is passionate about clean code, best practices, and staying up-to-date with the latest technology trends. He enjoys solving complex technical challenges and mentoring other developers.
