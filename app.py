@@ -58,20 +58,35 @@ except Exception as e:
 # Load Antonio Silván's data
 def load_curriculum_data():
     """Load PDF and summary data for Antonio Silván"""
+    resume_text = ""
     linkedin_text = ""
     summary_text = ""
     
-    # Try to load LinkedIn PDF
+    # Try to load Resume PDF
     try:
-        pdf_path = "data/linkedin.pdf"
-        if os.path.exists(pdf_path):
-            reader = PdfReader(pdf_path)
+        resume_path = "data/antonio_silvan_resume_en.pdf"
+        if os.path.exists(resume_path):
+            reader = PdfReader(resume_path)
+            for page in reader.pages:
+                text = page.extract_text()
+                if text:
+                    resume_text += text
+            print(f"Resume PDF loaded successfully: {len(resume_text)} characters")
+    except Exception as e:
+        print(f"Error loading Resume PDF: {e}")
+    
+    # Try to load LinkedIn Profile PDF
+    try:
+        linkedin_path = "data/Profile.pdf"
+        if os.path.exists(linkedin_path):
+            reader = PdfReader(linkedin_path)
             for page in reader.pages:
                 text = page.extract_text()
                 if text:
                     linkedin_text += text
+            print(f"LinkedIn Profile PDF loaded successfully: {len(linkedin_text)} characters")
     except Exception as e:
-        print(f"Error loading PDF: {e}")
+        print(f"Error loading LinkedIn Profile PDF: {e}")
     
     # Try to load summary text
     try:
@@ -79,11 +94,12 @@ def load_curriculum_data():
         if os.path.exists(summary_path):
             with open(summary_path, "r", encoding="utf-8") as f:
                 summary_text = f.read()
+            print(f"Summary text loaded successfully: {len(summary_text)} characters")
     except Exception as e:
         print(f"Error loading summary: {e}")
     
     # Fallback data if files don't exist
-    if not linkedin_text and not summary_text:
+    if not resume_text and not linkedin_text and not summary_text:
         summary_text = """
         Antonio Silván is a Full-Stack Engineer & Technical Lead with extensive experience 
         building backend systems, APIs, and modern web applications. He specializes in 
@@ -93,10 +109,10 @@ def load_curriculum_data():
         and modern web technologies.
         """
     
-    return linkedin_text, summary_text
+    return resume_text, linkedin_text, summary_text
 
 # Load data at startup
-linkedin_data, summary_data = load_curriculum_data()
+resume_data, linkedin_data, summary_data = load_curriculum_data()
 name = "Antonio Silván"
 
 # Create system prompt
@@ -106,7 +122,7 @@ Your responsibility is to represent {name} for interactions on the website as fa
 You are professional and engaging, as if talking to a potential client or future employer who came across the website. 
 If you don't know the answer, say so."""
 
-system_prompt += f"\n\n## Summary:\n{summary_data}\n\n## LinkedIn Profile:\n{linkedin_data}\n\n"
+system_prompt += f"\n\n## Resume:\n{resume_data}\n\n## LinkedIn Profile:\n{linkedin_data}\n\n## Summary:\n{summary_data}\n\n"
 system_prompt += f"With this context, please chat with the user, always staying in character as {name}."
 
 # Evaluation system prompt
@@ -116,7 +132,7 @@ The Agent is playing the role of {name} and is representing {name} on their webs
 The Agent has been instructed to be professional and engaging, as if talking to a potential client or future employer who came across the website. 
 The Agent has been provided with context on {name} in the form of their summary and LinkedIn details."""
 
-evaluator_system_prompt += f"\n\n## Summary:\n{summary_data}\n\n## LinkedIn Profile:\n{linkedin_data}\n\n"
+evaluator_system_prompt += f"\n\n## Resume:\n{resume_data}\n\n## LinkedIn Profile:\n{linkedin_data}\n\n## Summary:\n{summary_data}\n\n"
 evaluator_system_prompt += "With this context, please evaluate the latest response, replying with whether the response is acceptable and your feedback."
 
 class Evaluation(BaseModel):
