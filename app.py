@@ -64,7 +64,7 @@ def load_curriculum_data():
     
     # Try to load Resume PDF
     try:
-        resume_path = "data/antonio_silvan_resume_en.pdf"
+        resume_path = "../AntonioSilvan/antonio_silvan_resume_en.pdf"
         if os.path.exists(resume_path):
             reader = PdfReader(resume_path)
             for page in reader.pages:
